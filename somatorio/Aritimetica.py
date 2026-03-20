@@ -5,8 +5,8 @@ class ari():
     def __init__(self):
         self._soma_numeros = 0.0
         self._quantidade_numeros = 0
-        self.maior = float("-inf")
-        self.menor = float("inf")
+        self._maior = float("-inf")
+        self._menor = float("inf")
 
 
 
@@ -15,14 +15,16 @@ class ari():
         self._soma_numeros += _x
         self._quantidade_numeros += 1
 
-        if self.maior < _x:
-            self.maior = _x
-        if self.menor > _x:
-            self.menor = _x
+        if self._maior < _x:
+            self._maior = _x
+        if self._menor > _x:
+            self._menor = _x
 
     def media_Aritimetica(self):
         if self._quantidade_numeros == 0:
             raise ZeroDivisionError("Você não inseriu nenhum número!")
+        
+        print(f"\t\t\t\t\t\t\t\t\tO maior numero é {self._maior} e o menor é {self._menor}")
         return self._soma_numeros / self._quantidade_numeros
     
     def limpar_tela(self):
