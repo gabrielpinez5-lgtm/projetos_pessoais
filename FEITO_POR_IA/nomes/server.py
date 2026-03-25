@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 import os
 
 app = Flask(__name__, static_folder='.', static_url_path='')
+CORS(app)  # Permite requisições de qualquer origem
 
 @app.route('/')
 def index():

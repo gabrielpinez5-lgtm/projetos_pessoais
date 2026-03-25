@@ -92,6 +92,8 @@
             const nome = document.getElementById('nome').value;
             const cpf = document.getElementById('cpf').value;
             
+            console.log('Enviando:', { nome, cpf });
+            
             fetch('/cadastrar', {
                 method: 'POST',
                 headers: {
@@ -108,6 +110,7 @@
                 });
             })
             .then(result => {
+                console.log('Resultado:', result);
                 const messageDiv = document.getElementById('message');
                 messageDiv.textContent = result.data.message;
                 if (result.ok) {
@@ -118,7 +121,7 @@
                 }
             })
             .catch(error => {
-                console.error('Erro:', error);
+                console.error('Erro no fetch:', error);
                 const messageDiv = document.getElementById('message');
                 messageDiv.textContent = 'Erro ao cadastrar pessoa!';
                 messageDiv.className = 'error';
