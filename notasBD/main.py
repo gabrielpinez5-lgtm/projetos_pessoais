@@ -1,17 +1,21 @@
-import pyodbc as db, getpass4 as gp, os
-import platform
+
+
+import pyodbc as db, getpass4 as gp, os, platform, time
 
 conexao = None
 
 
 def limpar_tela():
-    sistema = "cls" if platform.system() == "Windows" else "clear"
-    os.system(sistema)
+    
+    # sistema = "cls" if platform.system() == "Windows" else "clear"
+    # os.system(sistema)
+    print("\033[H\033[J", end="") # metodo do gemini para limpar a 'tela' do terminal, funciona em qualquer sistema operacional e é mais rapido que o metodo tradicional
 
 def seletor():
     conexao_foi_feita = False
     opcao = -1
     while opcao != 0:
+
         limpar_tela()
         print("Selecione uma opção:")
         print("========= === ======")
@@ -50,51 +54,56 @@ def selecionar_materia():
     
     print("digite qual materia deseja alterar a nota")
     print("====== ==== ======= ====== ======= = ====")
-    print("mat_p1")
-    print("mat_p2")
-    print("geo_p1")
-    print("geo_p2")
-    print("bio_p1")
-    print("bio_p2")
-    print("edf_p1")
-    print("edf_p2")
-    print("fis_p1")
-    print("fis_p2")
-    print("his_p1")
-    print("his_p2")
-    print("ing_p1")
-    print("ing_p2")
-    print("pt_p1")
-    print("pt_p2")
-    print("qui_p1")
-    print("qui_p2")
-    print("tp_p1")
-    print("tp_p2")
-    print("bd_p1")
-    print("bd_p2")
-    print("desint_p1")
-    print("desint_p2")
-    print("projog_p1")
-    print("projog_p2")
-    print("praticas_p1")
-    print("praticas_p2")
-    print("filosoc_p1")
-    print("filosoc_p2")
+    print("mat")
+    print("geo")
+    print("bio")
+    print("edf")
+    print("fis")
+    print("his")
+    print("ing")
+    print("pt")
+    print("qui")
+    print("tp")
+    print("bd")
+    print("desint")
+    print("projog")
+    print("praticas")
+    print("filosoc")
+    
 
     materia = str(input("materia: "))
-    nota = float(input("nota: "))
     bimestre = int(input("bimestre: "))
+    nota_p1 = float(input("nota([enter] se não deseja inserir nota): "))
+    nota_p2 = float(input("nota([enter] se não deseja inserir nota): "))
 
 
-    if bimestre <= 4 and bimestre >= 1 and nota >= 0 and nota <= 10 and materia in ["mat_p1", "mat_p2", "geo_p1", "geo_p2", "bio_p1", "bio_p2", "edf_p1", "edf_p2", "fis_p1", "fis_p2", "his_p1", "his_p2", "ing_p1", "ing_p2", "pt_p1", "pt_p2", "qui_p1", "qui_p2", "tp_p1", "tp_p2", "bd_p1", "bd_p2", "desint_p1", "desint_p2", "projog_p1", "projog_p2", "praticas_p1", "praticas_p2", "filosoc_p1", "filosoc_p2"]:
+    if (bimestre >= 1 and bimestre <= 4) and (nota_p1 >= 0 and nota_p1 <= 10 or nota_p1 == None) and (nota_p2 >= 0 and nota_p2 <= 10 or nota_p2 == None) and materia in ["mat", "geo", "bio", "edf", "fis", "his", "ing", "pt", "qui", "tp", "bd", "desint", "projog", "praticas", "filosoc"]:
         
-        cursor = conexao.cursor()
+        try:
+            adicionar_nota(materia, nota_p1, nota_p2, bimestre)
+            print("\033[32m[✓] Nota adicionada com sucesso!\033[0m")
+            time.sleep(1.5)
+        except Exception as e:
+            print("\033[31m[!] Erro ao adicionar nota\033[0m")
+            time.sleep(1.5)
+    else:
+        print("\033[31m[!] Dados inválidos, tente novamente!\033[0m")
+        time.sleep(1.5)
         
-        cursor.execute(f"UPDATE notas SET {materia} = {nota} WHERE bimestre = {bimestre}")
-        
+def adicionar_nota(materia, nota_1,nota_2, bimestre):
+    global conexao
+    cursor = conexao.cursor()
+    if nota_1 != None:
+        cursor.execute(f"UPDATE nota_bruta SET {materia} = {nota_1} WHERE bimestre = {bimestre}")
         conexao.commit()
-        
-
+        cursor.close()
+    if nota_2 != None:
+        cursor.execute(f"UPDATE nota_bruta SET {materia} = {nota_2} WHERE bimestre = {bimestre}")
+        conexao.commit()
+        cursor.close()
+    
+def visualizar_notas():
+    pass
 
 
 def conectar_ao_banco():
@@ -110,13 +119,15 @@ def conectar_ao_banco():
                             user=f"{usuario}", 
                             password=f"{senha}")
 
-        print("Conectado ao banco de dados!")
+        # \033[32m deixa o texto verde
+        print("\033[32m[✓] Conexão feita com sucesso!\033[0m")
+        time.sleep(1.5)
         return True
     except Exception as e:
-        print("Erro ao conectar ao banco de dados:", e)
+        print("\033[31m[!] Não foi possível conectar\033[0m")
+        time.sleep(1.5)
         conexao = None
         return False
-    input("tecle [enter] para continuar")
 
 
 
