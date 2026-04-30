@@ -4,7 +4,6 @@ import pyodbc as db, getpass4 as gp, os, platform, time
 
 conexao = None
 
-
 def limpar_tela():
     
     # sistema = "cls" if platform.system() == "Windows" else "clear"
@@ -103,8 +102,28 @@ def adicionar_nota(materia, nota_1,nota_2, bimestre):
         cursor.close()
     
 def visualizar_notas():
-    pass
+    try:
+        global conexao
+        cursor = conexao.cursor()
+        tabela = cursor.execute("SELECT * FROM nota_bruta").fetchall()
 
+#todo o codigio abaixo é feito por ia, devo testar e revisar para ver se funciona,
+#  mas a ideia é pegar os nomes das colunas da tabela e printar eles em formato de tabela,
+#  depois printar os dados da tabela em formato de tabela,
+#  tudo isso usando o cursor.description para pegar os nomes das colunas e
+#  o fetchall para pegar os dados da tabela, e depois fechar o cursor, caso haja algum erro,
+#  printar uma mensagem de erro e esperar 1.5 segundos antes de continuar
+####################
+        columns = [column[0] for column in cursor.description] 
+        print(" | ".join(columns)) 
+        print(" | ".join(["=" * len(col) for col in columns])) 
+        for row in tabela: #
+            print(" | ".join(str(item) for item in row)) 
+        cursor.close() 
+    except Exception: 
+        print("\033[31m[!] Erro ao buscar notas\033[0m") 
+        time.sleep(1.5) 
+######################
 
 def conectar_ao_banco():
     global conexao
