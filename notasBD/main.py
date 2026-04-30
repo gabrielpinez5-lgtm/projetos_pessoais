@@ -31,13 +31,13 @@ def seletor():
                     print("nao foi possivel conectar ao banco!")
             case 2:
                 if conexao_foi_feita:
-                    selecionar_materia()
+                    selecionar_materia(1)
                 else:
                     print("conecte-se ao banco de dados primeiro!")
                     input("tecle [enter] para continuar")
             case 3:
                 if conexao_foi_feita:
-                    visualizar_notas()
+                    selecionar_materia(2)
                 else:
                     print("conecte-se ao banco de dados primeiro!")
                     input("tecle [enter] para continuar")
@@ -46,12 +46,12 @@ def seletor():
             
 
 
-def selecionar_materia():
+def selecionar_materia(opcao):
     
     limpar_tela()
     
     
-    print("digite qual materia deseja alterar a nota")
+    print("digite qual materia comunicar")
     print("====== ==== ======= ====== ======= = ====")
     print("mat")
     print("geo")
@@ -69,6 +69,14 @@ def selecionar_materia():
     print("praticas")
     print("filosoc")
     
+    if opcao == 1:
+        adicionar_nota()
+    
+    if opcao == 2:
+        visualizar_notas()
+        
+def adicionar_nota():
+    global conexao
 
     materia = str(input("materia: "))
     bimestre = int(input("bimestre: "))
@@ -79,51 +87,43 @@ def selecionar_materia():
     if (bimestre >= 1 and bimestre <= 4) and (nota_p1 >= 0 and nota_p1 <= 10 or nota_p1 == None) and (nota_p2 >= 0 and nota_p2 <= 10 or nota_p2 == None) and materia in ["mat", "geo", "bio", "edf", "fis", "his", "ing", "pt", "qui", "tp", "bd", "desint", "projog", "praticas", "filosoc"]:
         
         try:
-            adicionar_nota(materia, nota_p1, nota_p2, bimestre)
-            print("\033[32m[✓] Nota adicionada com sucesso!\033[0m")
-            time.sleep(1.5)
+                if nota_p1 != None:
+                    cursor = conexao.cursor()
+                    cursor.execute(f"UPDATE nota_bruta SET {materia}_p1 = {nota_p1} WHERE bimestre = {bimestre}")
+                    conexao.commit()
+                    cursor.close()
+
+                if nota_p2 != None:
+                    cursor = conexao.cursor()
+                    cursor.execute(f"UPDATE nota_bruta SET {materia}_p2 = {nota_p2} WHERE bimestre = {bimestre}")
+                    conexao.commit()
+                    cursor.close()
+
+
+                print("\033[32m[✓] Nota adicionada com sucesso!\033[0m")
+                time.sleep(1.5)
+
         except Exception as e:
+
             print("\033[31m[!] Erro ao adicionar nota\033[0m")
             time.sleep(1.5)
+
     else:
+
         print("\033[31m[!] Dados inválidos, tente novamente!\033[0m")
         time.sleep(1.5)
-        
-def adicionar_nota(materia, nota_1,nota_2, bimestre):
-    global conexao
-    cursor = conexao.cursor()
-    if nota_1 != None:
-        cursor.execute(f"UPDATE nota_bruta SET {materia} = {nota_1} WHERE bimestre = {bimestre}")
-        conexao.commit()
-        cursor.close()
-    if nota_2 != None:
-        cursor.execute(f"UPDATE nota_bruta SET {materia} = {nota_2} WHERE bimestre = {bimestre}")
-        conexao.commit()
-        cursor.close()
     
 def visualizar_notas():
     try:
+        materia = str(input("selecione a materia: "))
         global conexao
         cursor = conexao.cursor()
-        tabela = cursor.execute("SELECT * FROM nota_bruta").fetchall()
-
-#todo o codigio abaixo é feito por ia, devo testar e revisar para ver se funciona,
-#  mas a ideia é pegar os nomes das colunas da tabela e printar eles em formato de tabela,
-#  depois printar os dados da tabela em formato de tabela,
-#  tudo isso usando o cursor.description para pegar os nomes das colunas e
-#  o fetchall para pegar os dados da tabela, e depois fechar o cursor, caso haja algum erro,
-#  printar uma mensagem de erro e esperar 1.5 segundos antes de continuar
-####################
-        columns = [column[0] for column in cursor.description] 
-        print(" | ".join(columns)) 
-        print(" | ".join(["=" * len(col) for col in columns])) 
-        for row in tabela: #
-            print(" | ".join(str(item) for item in row)) 
-        cursor.close() 
-    except Exception: 
-        print("\033[31m[!] Erro ao buscar notas\033[0m") 
-        time.sleep(1.5) 
-######################
+        nota1 = cursor.execute(f"SELECT {materia}_p1 FROM nota_bruta").fetchall()
+        nota2 = cursor.execute(f"SELECT {materia}_p2 FROM nota_bruta").fetchall()
+        print(f" {materia}_p1 {nota1} |{materia}_p2  {nota2}   ")
+        input("tecle [enter] para continuar")
+    except Exception as e:
+        print(f"Não foi possivel mostrar suas notas, {e}")
 
 def conectar_ao_banco():
     global conexao
